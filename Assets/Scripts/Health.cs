@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public abstract class Health : MonoBehaviour
@@ -10,7 +11,7 @@ public abstract class Health : MonoBehaviour
     public event Action Died;
     public event Action<int, int> HealthChanged;
 
-    private void Start()
+    protected virtual void Start()
     {
         CurrentHealth = _maxValue;
         HealthChanged?.Invoke(CurrentHealth, _maxValue);
@@ -27,4 +28,6 @@ public abstract class Health : MonoBehaviour
             Died?.Invoke();
         }
     }
+
+    protected abstract IEnumerator Dead();
 }
