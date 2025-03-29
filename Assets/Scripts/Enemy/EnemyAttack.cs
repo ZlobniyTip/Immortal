@@ -7,8 +7,6 @@ public class EnemyAttack : MonoBehaviour
 {
     [SerializeField] private Weapon _weapon;
 
-    private Coroutine _attack;
-    private Enemy _enemy;
     private EnemyScaning _enemyScaning;
     private Character _character;
     private float _distance;
@@ -19,16 +17,14 @@ public class EnemyAttack : MonoBehaviour
 
     private void Awake()
     {
-        _enemy = GetComponent<Enemy>();
         _enemyScaning = GetComponent<EnemyScaning>();
 
-        _enemy.Died += StopAttacking;
         _enemyScaning.CharacterFinded += StartAttacking;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        _enemy.Died -= StopAttacking;
+        StopCoroutine(Attack());
         _enemyScaning.CharacterFinded -= StartAttacking;
     }
 
@@ -40,7 +36,7 @@ public class EnemyAttack : MonoBehaviour
         {
             _distance = Vector3.Distance(transform.position, _enemyScaning.Target.transform.position);
 
-            if (_distance <= _weapon.AttackDistance)
+            if (_distance <= _weapon.AttackRange)
             {
                 Attacking?.Invoke();
                 IsAttack = true;
@@ -55,14 +51,9 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    private void StopAttacking()
-    {
-        StopCoroutine(_attack);
-    }
-
     private void StartAttacking(Character character)
     {
         _character = character;
-        _attack = StartCoroutine(Attack());
+        StartCoroutine(Attack());
     }
 }

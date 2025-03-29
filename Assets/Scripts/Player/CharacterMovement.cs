@@ -1,9 +1,10 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CharacterMovement : MonoBehaviour
+public class CharacterMovement : MonoBehaviourPunCallbacks, IPunObservable
 {
-    [SerializeField] private float speed = 3.5f;
+    [SerializeField] private float _speed = 3.5f;
     [SerializeField] private float _rotarionSpeed = 3.5f;
 
     private NavMeshAgent _agent;
@@ -20,21 +21,28 @@ public class CharacterMovement : MonoBehaviour
 
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        _movement = new Vector3(horizontal, 0, vertical) * speed * Time.deltaTime;
-        _agent.Move(_movement);
-
-        if (_movement.magnitude > 0)
+        if (photonView.IsMine)
         {
-            IsRunning = true;
-            Quaternion targetRotation = Quaternion.LookRotation(_movement);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotarionSpeed * Time.deltaTime);
+            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = Input.GetAxis("Vertical");
+
+            _movement = new Vector3(horizontal, 0, vertical) * _speed * Time.deltaTime;
+            _agent.Move(_movement);
+
+            if (_movement.magnitude > 0)
+            {
+                IsRunning = true;
+                Quaternion targetRotation = Quaternion.LookRotation(_movement);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotarionSpeed * Time.deltaTime);
+            }
+            else
+            {
+                IsRunning = false;
+            }
         }
-        else
-        {
-            IsRunning = false;
-        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
     }
 }

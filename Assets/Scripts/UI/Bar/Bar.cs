@@ -5,10 +5,11 @@ using UnityEngine.UI;
 
 public abstract class Bar : MonoBehaviour
 {
+    private readonly float _recoveryRate = 0.6f;
+
     [SerializeField] protected Slider _barFilling;
     [SerializeField] private TMP_Text _text;
 
-    private readonly float _recoveryRate = 0.2f;
     private Coroutine _changeValue;
 
     public void OnValueChanged(int value, int maxValue)

@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class Talk : MonoBehaviour
 {
-    [SerializeField] private GameObject _panel;
-    [SerializeField] private TMP_Text _text;
-
+    private TMP_Text _dialogueText;
+    private GameObject _dialoguePanel;
+    private GameObject _tradePanel;
     private bool _inTalking = false;
 
     private void Update()
@@ -14,7 +14,12 @@ public class Talk : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Y))
             {
-                _panel.SetActive(true);
+                _dialoguePanel.SetActive(true);
+            }
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                _tradePanel.SetActive(true);
             }
         }
     }
@@ -23,8 +28,9 @@ public class Talk : MonoBehaviour
     {
         if (other.TryGetComponent(out NpcDialogue npc))
         {
+            npc.SwitchDialogueButton(true);
             _inTalking = true;
-            _text.text = npc.GiveTextDialogue();
+            _dialogueText.text = npc.GiveTextDialogue();
         }
     }
 
@@ -32,8 +38,17 @@ public class Talk : MonoBehaviour
     {
         if (other.TryGetComponent(out NpcDialogue npc))
         {
-            _panel.SetActive(false);
+            npc.SwitchDialogueButton(false);
+            _dialoguePanel.SetActive(false);
+            _tradePanel.SetActive(false);
             _inTalking = false;
         }
+    }
+
+    public void GetLinkTalkPanel(GameObject dialoguePanel, GameObject tradePanel, TMP_Text dialogueText)
+    {
+        _tradePanel = tradePanel;
+        _dialoguePanel = dialoguePanel;
+        _dialogueText = dialogueText;
     }
 }

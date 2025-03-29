@@ -1,16 +1,15 @@
-using UnityEngine;
-
 public class HealthBar : Bar
 {
-    [SerializeField] private Health _health;
+    private Health _health;
 
-    private void OnEnable()
-    {
-        _health.HealthChanged += OnValueChanged;
-    }
-
-    private void OnDisable()
+    private void OnDestroy()
     {
         _health.HealthChanged -= OnValueChanged;
+    }
+
+    public void SubscribeHealthBar(Health health)
+    {
+        _health = health;
+        _health.HealthChanged += OnValueChanged;
     }
 }

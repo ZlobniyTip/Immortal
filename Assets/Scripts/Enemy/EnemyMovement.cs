@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -15,9 +14,9 @@ public class EnemyMovement : MonoBehaviour
     private EnemyAttack _attack;
     private NavMeshAgent _navMesh;
 
-    public event Action<bool> Running;
+    private Character _character;
 
-    public bool IsRunning { get; private set; } = false;
+    public float Speed => _navMesh.velocity.magnitude;
 
     private void Awake()
     {
@@ -28,18 +27,26 @@ public class EnemyMovement : MonoBehaviour
         _scaning.CharacterFinded += StartFollowing;
     }
 
-    private void StartFollowing(Character character)
+    public void StopMoving()
     {
-        StartCoroutine(FollowCharacter(character));
+        _character = null;
+        _scaning.CharacterFinded -= StartFollowing;
     }
 
-    private IEnumerator FollowCharacter(Character character)
+    private void StartFollowing(Character character)
+    {
+        _character = character;
+
+        StartCoroutine(FollowCharacter());
+    }
+
+    private IEnumerator FollowCharacter()
     {
         var delay = new WaitForSeconds(_delayBetweenFollowing);
 
-        while (character)
+        while (_character)
         {
-            MoveToTarget(character);
+            MoveToTarget(_character);
 
             yield return delay;
         }
@@ -50,18 +57,10 @@ public class EnemyMovement : MonoBehaviour
         if (_attack.IsAttack)
         {
             _navMesh.speed = 0;
-            IsRunning = false;
-            Running?.Invoke(IsRunning);
             return;
         }
 
         _navMesh.speed = _speed;
         _navMesh.SetDestination(target.transform.position);
-
-        if (IsRunning == false)
-        {
-            IsRunning = true;
-            Running?.Invoke(IsRunning);
-        }
     }
 }

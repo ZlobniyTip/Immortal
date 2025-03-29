@@ -7,7 +7,7 @@ public class EnemyAnimation : MonoBehaviour
 {
     public class Params
     {
-        public static readonly int IsRunning = Animator.StringToHash(nameof(IsRunning));
+        public static readonly int Speed = Animator.StringToHash(nameof(Speed));
         public static readonly int Attack = Animator.StringToHash(nameof(Attack));
         public static readonly int TakeDamage = Animator.StringToHash(nameof(TakeDamage));
         public static readonly int Die = Animator.StringToHash(nameof(Die));
@@ -25,7 +25,6 @@ public class EnemyAnimation : MonoBehaviour
         _attack = GetComponent<EnemyAttack>();
         _enemy = GetComponent<Enemy>();
 
-        _movement.Running += SetupAnimationRun;
         _attack.Attacking += SetupAnimationAttack;
         _enemy.Died += SetupAnimationDie;
         _enemy.HealthChanged += SetupAnimationTakeDamage;
@@ -33,15 +32,19 @@ public class EnemyAnimation : MonoBehaviour
 
     private void OnDisable()
     {
-        _movement.Running -= SetupAnimationRun;
         _attack.Attacking -= SetupAnimationAttack;
         _enemy.Died -= SetupAnimationDie;
         _enemy.HealthChanged -= SetupAnimationTakeDamage;
     }
 
-    private void SetupAnimationRun(bool isRunning)
+    private void Update()
     {
-        _animator.SetBool(Params.IsRunning, isRunning);
+        SetupAnimationRun(_movement.Speed);
+    }
+
+    private void SetupAnimationRun(float speed)
+    {
+        _animator.SetFloat(Params.Speed, Mathf.Abs(speed));
     }
 
     private void SetupAnimationAttack()

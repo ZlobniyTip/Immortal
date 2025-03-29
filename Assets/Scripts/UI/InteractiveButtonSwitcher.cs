@@ -19,4 +19,9 @@ public class InteractiveButtonSwitcher : MonoBehaviour
             _button.SetActive(false);
         }
     }
+
+    private void SingPlayerAction()
+    {
+
+    }
 }

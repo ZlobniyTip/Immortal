@@ -1,15 +1,14 @@
 using System;
 using UnityEngine;
+using Photon.Pun;
 
-public class ComboAttack : MonoBehaviour
+public class ComboAttack : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private Weapon _weapon;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private Transform _weaponPoint;
 
-    [SerializeField] private float _comboWindow = 1.5f; // Время для следующего удара в комбо
-    [SerializeField] private float _attackRate = 1f;    // Частота базовых атак (в секундах)
-    [SerializeField] private int _maxComboHits = 2;     // Максимальное количество ударов в комбо
+    [SerializeField] private float _comboWindow = 2f;
+    [SerializeField] private int _maxComboHits = 2;
 
     private Weapon _currentWeapon;
     private int _currentComboIndex = 0;
@@ -18,24 +17,36 @@ public class ComboAttack : MonoBehaviour
 
     public event Action<int> Attacking;
 
-    private void Start()
-    {
-        _currentWeapon = Instantiate(_weapon, _weaponPoint);
-    }
-
-    void Update()
+    private void Update()
     {
         if (Time.time >= _nextAttackTime)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (photonView.IsMine)
             {
-                Attack();
-                ResetComboTimer();
+                if (Input.GetKeyDown(KeyCode.Mouse0))
+                {
+                    Attack();
+                    ResetComboTimer();
+                }
+                else if (Time.time < _lastAttackTime + _comboWindow)
+                {
+                    ResetCombo();
+                }
             }
-            else if (Time.time > _lastAttackTime + _comboWindow)
-            {
-                ResetCombo();
-            }
+        }
+    }
+
+    public void EquipItem(Item item)
+    {
+        if (_currentWeapon != null)
+        {
+            Destroy(_currentWeapon.gameObject);
+        }
+
+        if (item.Type == ItemType.Weapon)
+        {
+            Weapon weapon = item as Weapon;
+            _currentWeapon = Instantiate(weapon, _weaponPoint);
         }
     }
 
@@ -59,7 +70,7 @@ public class ComboAttack : MonoBehaviour
             ResetCombo();
         }
 
-        _nextAttackTime = Time.time + _attackRate;
+        _nextAttackTime = Time.time + _currentWeapon.DelayBetweenAttack;
         _lastAttackTime = Time.time;
     }
 
